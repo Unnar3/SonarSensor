@@ -2,6 +2,16 @@
 
 class dvlData{
 
+public:
+	struct positionEstimate{
+		double logtime;
+		double x;
+		double y;
+		double z;
+		double yaw;
+	};
+
+private:
 	struct dvld
 	{
 		double logtime;
@@ -13,8 +23,10 @@ class dvlData{
 		double vwy;
 		double vwz;
 		double waterok;
+		double yaw;
+		double xt;
+		double yt;
 	};
-
 	std::vector<dvld> dvlmeasurements;
 
 public:
@@ -57,6 +69,13 @@ public:
                             tmp_dvld.vbz = number;
                         } else if (i == 14){
                             tmp_dvld.bottomok = number;
+                        } else if (i == 22){
+                        	tmp_dvld.yaw = number/360*2*M_PI;
+                        } else if (i == 30){
+                        	tmp_dvld.xt = number/360*2*M_PI;
+                        } else if (i == 31){
+                        	tmp_dvld.yt = number/360*2*M_PI;
+                        }
                     }
                     dvlmeasurements.push_back(tmp_dvld);
                 }
@@ -64,7 +83,44 @@ public:
             line_number++;
         }
         std::cout << "Finished reading DVL data!" << std::endl;
-	}
+	};
+
+	std::vector<positionEstimate> getPosition(){
+		double x_curr = 0;
+		double y_curr = 0;
+		double z_curr = 0;
+		double t_curr = 0;
+		double yaw = 0;
+
+		positionEstimate pose;
+		std::vector<positionEstimate> vpose;
+
+		double td = 0;
+		dvld M;
+
+
+		for (size_t i = 0; i < dvlmeasurements.size(); ++i){
+			if ( dvlmeasurements.at(i).bottomok == 1 ){
+				M = dvlmeasurements.at(i);
+				if (i == 0){
+					pose.logtime = M.logtime;
+					pose.x = 0;
+					pose.y = 0;
+					pose.z = 0;
+					pose.yaw = M.yaw;
+				} else {
+					td = M.logtime - dvlmeasurements.at(i-1).logtime;
+					pose.logtime = M.logtime;
+					pose.x = vpose.back().x + (M.vbx*td*cos(M.yaw) - M.vby*td*sin(M.yaw))/100;
+					pose.y = vpose.back().y + (M.vbx*td*sin(M.yaw) + M.vby*td*cos(M.yaw))/100;
+					pose.z = vpose.back().z;
+					pose.yaw = M.yaw;
+				}
+				vpose.push_back(pose);
+			}
+		}
+		return vpose;
+	};
 
 
 };
