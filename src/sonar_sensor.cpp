@@ -3,6 +3,7 @@
 #include <string> 
 #include <iostream> 
 #include "VehicleState/VehicleState.h"
+#include "DeadReckoningDVL/DVLData.h"
 
 #include <cv_bridge/cv_bridge.h>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -76,45 +77,45 @@ int main(int argc, char **argv) {
     std::string data_path = "/home/unnar/catkin_ws/src/SonarSensor/sonardata/";
     
     // Read sonar data;
-    ReadLOGFiles::isData is_data = ReadLOGFiles::readISLOG(data_path);
+    // ReadLOGFiles::isData is_data = ReadLOGFiles::readISLOG(data_path);
     
-    cv::namedWindow( "Display window", cv::WINDOW_AUTOSIZE );// Create a window for display.
-    cv::Mat image(1000, 1000, CV_32FC1,0.0f);
-    cv::Mat falseColorsMap;
-    double angle = 0.0;
-    double numberrays = 20;
-    double anglediff = std::abs(is_data.transducerangle.at(0) - is_data.transducerangle.at(1))/numberrays;
+    // cv::namedWindow( "Display window", cv::WINDOW_AUTOSIZE );// Create a window for display.
+    // cv::Mat image(1000, 1000, CV_32FC1,0.0f);
+    // cv::Mat falseColorsMap;
+    // double angle = 0.0;
+    // double numberrays = 20;
+    // double anglediff = std::abs(is_data.transducerangle.at(0) - is_data.transducerangle.at(1))/numberrays;
 
 
-    VehicleState state;
+    // VehicleState state;
 
-    int x = 0, y = 0;
-    int circle_count = 0;
-    for (size_t i = 0; i < is_data.transducerangle.size(); ++i){
-        angle = is_data.transducerangle.at(i);
-        for ( size_t j = 0; j < is_data.bins.at(i).size(); j++){
-            for( int k = -numberrays/2 ; k < numberrays/2; k++){
-                y = cos(angle + (float)k * anglediff) * j;
-                x = -sin(angle + (float)k * anglediff) * j;
-                image.at<float>(499.0 + y,499.0 + x) = is_data.bins.at(i).at(j)/100.0;
-            }
-        }
+    // int x = 0, y = 0;
+    // int circle_count = 0;
+    // for (size_t i = 0; i < is_data.transducerangle.size(); ++i){
+    //     angle = is_data.transducerangle.at(i);
+    //     for ( size_t j = 0; j < is_data.bins.at(i).size(); j++){
+    //         for( int k = -numberrays/2 ; k < numberrays/2; k++){
+    //             y = cos(angle + (float)k * anglediff) * j;
+    //             x = -sin(angle + (float)k * anglediff) * j;
+    //             image.at<float>(499.0 + y,499.0 + x) = is_data.bins.at(i).at(j)/100.0;
+    //         }
+    //     }
 
-        circle_count++; // Count the placement in the circle.
-        if (angle == 0){
-            std::cout << "circle count: " << circle_count << std::endl;
-            circle_count = 0;
+    //     circle_count++; // Count the placement in the circle.
+    //     if (angle == 0){
+    //         std::cout << "circle count: " << circle_count << std::endl;
+    //         circle_count = 0;
 
-            applyColorMap(image, falseColorsMap, cv::COLORMAP_AUTUMN);
+    //         applyColorMap(image, falseColorsMap, cv::COLORMAP_AUTUMN);
 
 
 
-            cv::imshow( "Display window", falseColorsMap ); 
-            cv::waitKey(0);
+    //         cv::imshow( "Display window", falseColorsMap ); 
+    //         cv::waitKey(0);
 
-            // std::cout << image << std::endl;
-        }
-    }
+    //         // std::cout << image << std::endl;
+    //     }
+    // }
 
 
     return 0;
