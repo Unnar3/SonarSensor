@@ -28,6 +28,10 @@ catkin_package(
 )
 include_directories(include ${catkin_INCLUDE_DIRS})
 
+add_library(DeadReckoning include/KalmanFilter/DeadReckoning.cpp)
 
 add_executable(sonar_sensor src/sonar_sensor.cpp)
 target_link_libraries(sonar_sensor ${catkin_LIBRARIES})
+
+add_executable(sonar_sensor_test src/test.cpp)
+target_link_libraries(sonar_sensor_test DeadReckoning ${catkin_LIBRARIES})
