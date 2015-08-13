@@ -16,22 +16,23 @@ class DeadReckoning{
 
 public:
 	DeadReckoning(){
-		state.resize(9);
-		P.resize(9,9);
-		P.setZero(9,9);
+		state.resize(8);
+		P.resize(8,8);
+		P.setZero(8,8);
 	};
 	DeadReckoning(VectorXd initialize, double sigmaPhi, double logTime){
 		state = initialize;
-		P.resize(9,9);
-		P.setZero(9,9);
-		P(8,8) = sigmaPhi;
+		P = MatrixXd::Identity(8,8)*0.001;
+		// P.resize(8,8);
+		// P.setZero(8,8);
 		std::cout << P << std::endl;
+		std::cout << " " << std::endl;
 		lastLogTime = logTime;
 	};
 
 	void predictState(double logTime);
-	void updateStateDVL(VectorXd update);
-	void updateStateMTi(VectorXd update);
+	void updateStateDVL(VectorXd update, double logtime);
+	void updateStateMTi(VectorXd update, double logtime);
 
 	VectorXd returnState(){ return state; }
 

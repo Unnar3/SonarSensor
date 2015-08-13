@@ -4,12 +4,12 @@
 #include <random>
 
 void DeadReckoning::predictState(double logTime){
-	VectorXd sf(9);
-	sf << 0,0,0,0,0,0,0,0,0;
-	VectorXd sn(9);
-	sn << 0,0,0,0,0,0,0,0,0;
+	VectorXd sf(8);
+	sf << 0,0,0,0,0,0,0,0;
+	VectorXd sn(8);
+	sn << 0,0,0,0,0,0,0,0;
 
-	MatrixXd Q = MatrixXd::Identity(4, 4)*0.01;
+	MatrixXd Q = MatrixXd::Identity(4, 4)*10;
 
 	// Gaussian white noise additive
 	std::random_device rd;
@@ -48,25 +48,62 @@ void DeadReckoning::predictState(double logTime){
 
 	// Update covariance P
 	P = F*P*F.transpose() + G*Q*G.transpose();
+
+	std::cout << "P:" << std::endl;
 	std::cout << P << std::endl;
+
+	// std::cout << state << std::endl;
+	// std::cout << " " << std::endl;
 
 	// Update lastLogTime
 	lastLogTime = logTime;
 };
 
-void DeadReckoning::updateStateDVL(){
+void DeadReckoning::updateStateDVL(VectorXd update, double logtime){
 	MatrixXd H;
-	H.setZero(4,9);
+	H.setZero(4,8);
 	H(0,4) = 1;
 	H(1,5) = 1;
 	H(2,6) = 1;
 	H(3,2) = 1;
+	std::cout << "H: " << std::endl;
+	std::cout << H << std::endl;
+
+	MatrixXd R;
+	R.setZero(4,4);
+	R(0,0) = 0.001;
+	R(1,1) = 0.001;
+	R(2,2) = 0.001;
+	R(3,3) = 0.001;
+
+	VectorXd y = update - H*state;
+
+	MatrixXd S = H*P*H.transpose() + R;
+	MatrixXd K = P*H.transpose()*S.inverse();
+	state = state + K*y;
+	P = (MatrixXd::Identity(8, 8) - K*H)*P;
+	std::cout << "State: " << state << std::endl;
+	std::cout << "" << std::endl;
+};
+
+void DeadReckoning::updateStateMTi(VectorXd update, double logtime){
+	MatrixXd H(1,8);
+	H << 0,0,0,1,0,0,0,0;
+	MatrixXd R(1,1); 
+	R(0,0) = 0.001;
+	VectorXd y = update - H*state;
+	MatrixXd S = H*P*H.transpose() + R;
+	MatrixXd K = P*H.transpose()*S.inverse();
+	state = state + K*y;
+	P = (MatrixXd::Identity(8, 8) - K*H)*P;
+	std::cout << "state: " << state << std::endl;
+	std::cout << "" << std::endl;
 }
 
 
 MatrixXd DeadReckoning::jacobianF(VectorXd st, double dT){
 	MatrixXd F;
-	F.setZero(9,9);
+	F.setZero(8,8);
 	F(0,0) = 1; 
 	F(0,3) = dT*(-st(4)*sin(st(3)) - st(5)*cos(st(3))); 
 	F(0,4) = dT*cos(st(3));
@@ -88,7 +125,7 @@ MatrixXd DeadReckoning::jacobianF(VectorXd st, double dT){
 MatrixXd DeadReckoning::jacobianG(VectorXd st, double dT){
 	double dT2 = dT*dT/2;
 	MatrixXd G;
-	G.setZero(9,4);
+	G.setZero(8,4);
 	G(0,0) = dT2 * cos(st(3));
 	G(0,1) = -dT2 * sin(st(3));
 	G(1,0) =  dT2 * sin(st(3));

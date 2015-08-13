@@ -44,12 +44,17 @@ int main(int argc, char **argv) {
     // ReadISLOG islog;
     // ReadISLOG::isData is_data = islog.readISLOG(data_path);
 
-    // dvlData dvldata;
-    // dvldata.readLogFile("/home/unnar/catkin_ws/src/SonarSensor/sonardata/_040825_1735_DVL.log");
-    // std::vector<dvlData::positionEstimate> pos = dvldata.getPosition();
+    dvlData dvldata;
+    dvldata.readLogFile("/home/unnar/catkin_ws/src/SonarSensor/sonardata/_040825_1735_DVL.log");
+    std::vector<dvlData::positionEstimate> pos = dvldata.getPosition();
     
-    VectorXd init(9);
-    init << 0,0,0,0,1,1,0,0,0;
+    MTiData mtid;
+    std::vector<MTiData::mtid> vmtid;
+    vmtid = mtid.readMTiLOG("/home/unnar/catkin_ws/src/SonarSensor/sonardata/_040825_1735_MTi.log");
+
+
+    VectorXd init(8);
+    init << 0,0,0,0,1,1,0,0;
     double logtime = 0.0;
     double dT = 0.01;
 
@@ -57,6 +62,14 @@ int main(int argc, char **argv) {
     drec.predictState(logtime + dT);
     drec.predictState(logtime + 2*dT);
     drec.predictState(logtime + 3*dT);
+
+    VectorXd m(4);
+    m << 10, 10, 0.05 , 0.1;
+    drec.updateStateDVL(m, 0.01);
+
+    VectorXd t(1);
+    t << 1.14;
+    drec.updateStateMTi(t, 0.01);
 
     return 0;
 }

@@ -15,6 +15,7 @@ public:
 private:
 	std::vector<mtid> vmtid;
 
+public:
 	std::vector<mtid> readMTiLOG(std::string log_file){
 		std::cout << "Started reading DVL data!" << std::endl;
 
