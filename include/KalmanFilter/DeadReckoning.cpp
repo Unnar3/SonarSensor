@@ -14,7 +14,7 @@ void DeadReckoning::predictState(double logTime){
 	// Gaussian white noise additive
 	std::random_device rd;
     std::mt19937 gen(rd());
-    std::normal_distribution<double> d(0,0.01);
+    std::normal_distribution<double> d(0,0.0001);
 	double su = d(gen);
 	double sv = d(gen);
 	double sr = d(gen);
@@ -26,8 +26,8 @@ void DeadReckoning::predictState(double logTime){
 	// update based on previous state
 	sf(0) = dT * (cos(state(3))*state(4) - sin(state(3))*state(5));
 	sf(1) = dT * (sin(state(3))*state(4) + cos(state(3))*state(5));
-	sf(2) = dT * state(6);
-	sf(3) = dT * state(7);
+	sf(2) = 0; //dT * state(6);
+	sf(3) = 0; //dT * state(7);
 
 	// update based on white noise
 	sn(0) = dT2 * (cos(state(3))*su - sin(state(3))*sv);
@@ -44,60 +44,61 @@ void DeadReckoning::predictState(double logTime){
 	MatrixXd G = DeadReckoning::jacobianG(state, dT);
 
 	// Combine into new prediction
-	state = state + sf + sn;
+	state = state + sf;// + sn;
 
 	// Update covariance P
 	P = F*P*F.transpose() + G*Q*G.transpose();
-
-	std::cout << "P:" << std::endl;
-	std::cout << P << std::endl;
-
-	// std::cout << state << std::endl;
-	// std::cout << " " << std::endl;
 
 	// Update lastLogTime
 	lastLogTime = logTime;
 };
 
 void DeadReckoning::updateStateDVL(VectorXd update, double logtime){
-	MatrixXd H;
-	H.setZero(4,8);
-	H(0,4) = 1;
-	H(1,5) = 1;
-	H(2,6) = 1;
-	H(3,2) = 1;
-	std::cout << "H: " << std::endl;
-	std::cout << H << std::endl;
+	// MatrixXd H;
+	// H.setZero(4,8);
+	// H(0,4) = 1;
+	// H(1,5) = 1;
+	// H(2,6) = 1;
+	// H(3,2) = 1;
 
-	MatrixXd R;
-	R.setZero(4,4);
-	R(0,0) = 0.001;
-	R(1,1) = 0.001;
-	R(2,2) = 0.001;
-	R(3,3) = 0.001;
+	// MatrixXd R;
+	// R.setZero(4,4);
+	// R(0,0) = 0.0001;
+	// R(1,1) = 0.0001;
+	// R(2,2) = 0.0001;
+	// R(3,3) = 0.0001;
 
-	VectorXd y = update - H*state;
+	// VectorXd y = update - H*state;
 
-	MatrixXd S = H*P*H.transpose() + R;
-	MatrixXd K = P*H.transpose()*S.inverse();
-	state = state + K*y;
-	P = (MatrixXd::Identity(8, 8) - K*H)*P;
-	std::cout << "State: " << state << std::endl;
-	std::cout << "" << std::endl;
+	// MatrixXd S = H*P*H.transpose() + R;
+	// MatrixXd K = P*H.transpose()*S.inverse();
+	// state = state + K*y;
+	// P = (MatrixXd::Identity(8, 8) - K*H)*P;
+	// lastLogTime = logtime;
+	
+	state(4) = update(0);
+	state(5) = update(1);
+	state(3) = update(3);
+	// state(4) = update(1);
+	// state(4) = update(1);
 };
 
 void DeadReckoning::updateStateMTi(VectorXd update, double logtime){
-	MatrixXd H(1,8);
-	H << 0,0,0,1,0,0,0,0;
-	MatrixXd R(1,1); 
-	R(0,0) = 0.001;
-	VectorXd y = update - H*state;
-	MatrixXd S = H*P*H.transpose() + R;
-	MatrixXd K = P*H.transpose()*S.inverse();
-	state = state + K*y;
-	P = (MatrixXd::Identity(8, 8) - K*H)*P;
-	std::cout << "state: " << state << std::endl;
-	std::cout << "" << std::endl;
+	// MatrixXd H(1,8);
+	// H << 0,0,0,1,0,0,0,0;
+	// MatrixXd R(1,1); 
+	// R(0,0) = 0.0001;
+	// VectorXd y = update - H*state;
+	// // std::cout << "y: " << y << std::endl;
+	// MatrixXd S = H*P*H.transpose() + R;
+	// // std::cout << "S: " << S << std::endl;
+	// MatrixXd K = P*H.transpose()*S.inverse();
+	// // std::cout << "K: " << K << std::endl;
+	// state = state + K*y;
+	// // std::cout << "K*y: " << K*y << std::endl;
+	// P = (MatrixXd::Identity(8, 8) - K*H)*P;
+	// lastLogTime = logtime;
+	// state(3) = update(0);
 }
 
 

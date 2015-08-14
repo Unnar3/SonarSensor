@@ -11,7 +11,6 @@ public:
 		double yaw;
 	};
 
-private:
 	struct dvld
 	{
 		double logtime;
@@ -27,6 +26,7 @@ private:
 		double xt;
 		double yt;
 	};
+private:
 	std::vector<dvld> dvlmeasurements;
 
 public:
@@ -84,6 +84,10 @@ public:
         }
         std::cout << "Finished reading DVL data!" << std::endl;
 	};
+
+	std::vector<dvld> getMeasurements(){
+		return dvlmeasurements;
+	}
 
 	std::vector<positionEstimate> getPosition(){
 

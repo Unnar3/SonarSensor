@@ -1,3 +1,4 @@
+#include "utils/utils.h"
 class MTiData{
 public:
 	struct mtid{
@@ -44,7 +45,7 @@ public:
                         } else if (i == 2) {
                         	tmp_mtid.Pitch = number;
                         } else if (i == 3){
-         					tmp_mtid.Yaw = number;                        	
+         					tmp_mtid.Yaw = utils::deg2rad(number);                        	
                         } else if (i == 4){
                         	tmp_mtid.rX = number;
                         } else if (i == 5){

@@ -9,7 +9,7 @@ using namespace Eigen;
 class DeadReckoning{
 
 	// State vector.
-	// state = [x y z theta u v r w phi_0]'
+	// state = [x y z theta u v r w]'
 	double lastLogTime;
 	VectorXd state;
 	MatrixXd P;
@@ -20,13 +20,11 @@ public:
 		P.resize(8,8);
 		P.setZero(8,8);
 	};
-	DeadReckoning(VectorXd initialize, double sigmaPhi, double logTime){
+	DeadReckoning(VectorXd initialize, double logTime){
 		state = initialize;
-		P = MatrixXd::Identity(8,8)*0.001;
+		// P = MatrixXd::Identity(8,8)*0.001;
 		// P.resize(8,8);
-		// P.setZero(8,8);
-		std::cout << P << std::endl;
-		std::cout << " " << std::endl;
+		P.setZero(8,8);
 		lastLogTime = logTime;
 	};
 
